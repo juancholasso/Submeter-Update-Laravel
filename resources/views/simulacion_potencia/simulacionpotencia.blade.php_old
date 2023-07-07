@@ -1,0 +1,1351 @@
+@extends('Dashboard.layouts.global')
+
+@section('content')
+<div id="wrapper">
+	<div id="page-wrapper" class="gray-bg dashbard-1">
+		<div class="content-main">
+			<div class="banner col-md-12">
+				<div class="col-md-6 text-center">
+						<button type="button" class="btn btn-lg btn-primary float-left" data-toggle="modal" data-target="#myModal" style="margin-right: 2em;"><i class="fa fa-plus"></i>  Intervalos de Períodos ({{$label_intervalo}})</button>
+					</div>
+			    <div class="col-md-6 text-right" style="margin-top: 5px">
+					@if($label_intervalo != 'Personalizado')
+						<form id="form_navegation" action="{{route('config.navigation')}}" method="POST">
+							{{ csrf_field() }}
+							<input type="hidden" name="option_interval" value="9">
+							<input type="hidden" name="label_intervalo" value="{{$label_intervalo}}">
+							<input type="hidden" name="date_from_personalice" value="{{$date_from}}">
+							<input type="hidden" name="date_to_personalice" value="{{$date_to}}">
+							<input type="hidden" name="before_navigation" id="before_navigation" value="0">
+				    		<button type="button" class="btn  btn-primary btn-arrow-left" onclick="anterior()">Ant.</button>
+							@if(isset(Session::get('_flash')['current_date']))
+								<button type="button" class="btn  btn-link">{{Session::get('_flash')['current_date']}}</button>
+							@else
+				    			<button type="button" class="btn  btn-link">{{$label_intervalo}}</button>
+				    		@endif
+				    		<button type="button" class="btn  btn-primary btn-arrow-right" onclick="siguiente()">Sig.</button>
+						</form>
+					@endif
+				</div>
+			    @if(isset($ctrl) && $ctrl == 1)
+     					<a href="{!! route('admin.users',[2, $id]) !!}" class="btn btn-info btn-lg float-right"><i class="fa fa-undo"></i></a>
+     			@endif
+			</div>
+
+			<div style="display: none;" >
+				<div class="pdf-header">
+					<div class="container"   style="width:100%; display: inline-block">
+						<div class="row">
+							<div class="col">
+								<img class="float-left" width="60px" height="60px" src="{{asset($dir_image_count)}}">
+							</div>
+							<div class="col">
+								<h5 style="text-align: center;">Simulación de Potencia<h5>
+							</div>
+							<div class="col">
+							<img class="float-right" width="60px" height="60px" src="{{asset('images/Logo_WEB_Submeter.png')}}">
+							</div>
+						</div>
+					</div>
+					<div>
+						<table class="table table-bordered" id="pdf_encabezado">
+							<tr>
+								<th class="text-left font-weight-bold ">Cliente</th>
+								<td>{{$domicilio->denominacion_social}}</td>
+								<th class="text-left font-weight-bold">CIF</th>
+								<td>{{$domicilio->CIF}}</td>
+							</tr>
+							<tr>
+								<th class="text-left font-weight-bold">Contador</th>
+								<td>{{$contador_label}}</td>
+								<th class="text-left font-weight-bold ">CUPS</th>
+								<td>{{$domicilio->CUPS}}</td>
+							</tr>
+							<tr>
+								<th class="text-left font-weight-bold">Direccion del suministro</th>
+								<td>{{$domicilio->suministro_del_domicilio}}</td>
+								<th class="text-left font-weight-bold">Intervalo</th>
+								<td>Desde {{$date_from}} hasta {{$date_to}}</td>
+							</tr>
+						</table>
+						<br>
+						<br>
+					</div>
+				</div>
+			</div>
+
+			<div class="content-mid">
+				<div class="grid_3 col-md-12">
+     				<div class="but_list">
+       					<div class="bs-example bs-example-tabs" role="tabpanel" data-example-id="togglable-tabs">
+	   						<ul id="myTab" class="nav nav-tabs" role="tablist">
+	   							@foreach($user->energy_meters as $i => $contador)
+		   							@if(App\Http\Controllers\GroupsController::checkContadorMenu($user->id, 5, $contador->id))
+    		   							@if($contador->id == $user->current_count->meter_id)
+                        					<li role="presentation" class="active">
+          			  							<a href="{{route('energymeter.change', [$user->id, $contador->id])}}" id="home-tab" style="font-size: 14pt"><i class="fa fa-clock-o"></i>{{$contador->count_label}}</a>
+          			  						</li>
+      			  						@else
+      			  							<li role="presentation">
+          			  							<a href="{{route('energymeter.change', [$user->id, $contador->id])}}" id="home-tab" style="font-size: 14pt"><i class="fa fa-clock-o"></i>{{$contador->count_label}}</a>
+          			  						</li>
+      			  						@endif
+      			  					@endif
+                				@endforeach
+							</ul>
+							<div id="myTabContent" class="tab-content">
+								<?php $j = 1; ?>
+								@foreach($user->_count as $contador)
+									@if($j == 1)
+											<div role="tabpanel" class="tab-pane fade in active col-md-12" id="Contador{{$j}}" aria-labelledby="Contador{{$j}}">
+										@else
+											<div role="tabpanel" class="tab-pane fade" id="Contador{{$j}}" aria-labelledby="Contador{{$j}}">
+										@endif
+											@if(isset($domicilio->suministro_del_domicilio))
+												<label class="title-ubicacion">Ubicación: <label class="title-ubicacion2">{{$domicilio->suministro_del_domicilio}}</label></label>
+											@else
+												<label class="title-ubicacion">Ubicación: <label class="title-ubicacion2">sin ubicación</label></label>
+											@endif
+											<br>
+											<label class="title-ubicacion">Intervalo: <label class="title-ubicacion2"> Desde {{$date_from}} hasta {{$date_to}}</label></label>
+
+
+
+									</div>
+									<?php $j++; ?>
+								@endforeach
+								<br>
+
+								<ul class="nav-custom nav nav-tabs">
+																	<li class="active"><a data-toggle="tab" class="tab-plot-header" href="#grafTotal">Total</a></li>
+																	@foreach($arreglo_potencia as $index=>$potencia)
+																	<li><a data-toggle="tab" href="#grafPotencia{{$index}}" class="tab-plot-header">{{$potencia["periodo"]}}</a></li>
+																	@endforeach
+															</ul>
+															<div class="tab-content">
+																<div id="grafTotal" class="tab-pane fade in active plot-tab">
+																	<input type="hidden" class="plot-name" value='{{ $dataPlotting["total"]["name"] }}' />
+																	<input type="hidden" class="plot-labels" value='{!! $dataPlotting["total"]["labels"] !!}' />
+																	<input type="hidden" class="plot-max" value='{{ $dataPlotting["total"]["max"] }}' />
+																	@foreach($dataPlotting["total"]["series"] as $serie)
+																	<input type="hidden" class="serie-name" value='{{ $serie["name"] }}' />
+																	<input type="hidden" class="serie-color" value='{!! $serie["color"] !!}' />
+																	<input type="hidden" class="serie-value" value='{!! $serie["values"] !!}' />
+																	<input type="hidden" class="serie-aux_label" value='{{ $serie["aux_label"] }}' />
+																	<input type="hidden" class="serie-interval" value='{{ $serie["interval"] }}' />
+																	@endforeach
+																	<div class="col-md-12 graph-1">
+																		<div class="grid-1">
+																						<div id="graphTotal" class="plot-container" style="height: 330px; width: 100%;"></div>
+																					</div>
+																	</div>
+																	</div>
+																	@foreach($dataPlotting["periodos"] as $index=>$dataPeriodo)
+																<div id="grafPotencia{{$index}}" class="tab-pane fade plot-tab">
+																		<input type="hidden" class="plot-name" value='{{ $dataPeriodo["name"] }}' />
+																	<input type="hidden" class="plot-labels" value='{!! $dataPeriodo["labels"] !!}' />
+																	<input type="hidden" class="plot-max" value='{{ $dataPeriodo["max"] }}' />
+																	@foreach($dataPeriodo["series"] as $serie)
+																	<input type="hidden" class="serie-name" value='{{ $serie["name"] }}' />
+																	<input type="hidden" class="serie-color" value='{!! $serie["color"] !!}' />
+																	<input type="hidden" class="serie-value" value='{!! $serie["values"] !!}' />
+																	<input type="hidden" class="serie-aux_label" value='{{ $serie["aux_label"] }}' />
+																	<input type="hidden" class="serie-interval" value='{{ $serie["interval"] }}' />
+																	@endforeach
+																	<div class="col-md-12 graph-1">
+																		<div class="grid-1">
+																						<div id="graphPeriodo_{{$index}}" class="plot-container" style="height: 330px; width: 100%;"></div>
+																					</div>
+																	</div>
+																	</div>
+																	@endforeach
+															</div>
+							</div>
+				</div>
+			</div>
+			<div class="col-md-12">
+				<button type = "button" class="btn color-127 pull-right" id="exportButton"> GENERAR PDF</button>
+			</div>
+
+				@if($tipo_tarifa == 1)
+						<div class="col-md-12">
+							<div class="row">
+								<form method="POST" action="{{route('simulacion.potencia.save')}}">
+									{{ csrf_field() }}
+									<input type="hidden" name="user" value="{{$user->id}}" />
+									<input type="hidden" name="count" value="{{$contador2->id}}" />
+									<div class="col-md-6 export-pdf" data-pdforder="1">
+										<h4 class="title-1 title-analisis">Situación Actual</h4>
+										<table class="table-analisis-comparacion tabla1 table table-bordered table-hover table-responsive">
+											<thead>
+												<tr>
+													<th>
+
+													</th>
+													@foreach($arreglo_potencia as $potencia)
+														<th class="text-center" style="vertical-align: middle;">
+															{{$potencia["periodo"]}}<br> (kW)
+														</th>
+													@endforeach
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td class="text-center" style="vertical-align: middle;">
+														POTENCIA<br> CONTRATADA
+													</td>
+													@foreach($arreglo_potencia as $potencia)
+														<td class="text-center" style="vertical-align: middle;">
+															 {{number_format($potencia["potencia"],0,',','.')}}
+														</td>
+													@endforeach
+												</tr>
+												<tr style="background:#7F7F7F;">
+													<td class="text-center" style="vertical-align: middle;font-weight:bold;color:white;">
+														POTENCIA<br> MAXIMA REGISTRADA
+													</td>
+													@foreach($data_analisis["dataFP_max"] as $potencia)
+														<td class="text-center" style="vertical-align: middle;font-weight:bold;color:white;">
+															 {{number_format($potencia,0,',','.')}}
+														</td>
+													@endforeach
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div class="col-md-6">
+										<h4 class="title-1 title-analisis">Simulación Potencia</h4>
+										<table class="tabla1 table-analisis-comparacion table table-bordered table-hover table-responsive">
+											<thead>
+												<tr>
+													<th>
+
+													</th>
+													@foreach($arreglo_potencia_simulada as $potencia)
+														<th class="text-center" style="vertical-align: middle;">
+															{{$potencia["periodo"]}}<br> (kW)
+														</th>
+													@endforeach
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td class="text-center" style="vertical-align: middle;">
+														NUEVA<br> POTENCIA
+													</td>
+													@foreach($arreglo_potencia_simulada as $index=>$potencia)
+														<td class="text-center" style="vertical-align: middle;">
+															<input type="number" class="form-control" name="simulatedv[]" value="{{round($potencia["potencia"], 0)}}" />
+														</td>
+													@endforeach
+												</tr>
+											</tbody>
+										</table>
+									</div>
+									<!-- -->
+									<div style="display: none;" >
+									<div class="col-md-6 export-pdf" data-pdforder="3">
+										<h4 class="title-1 title-analisis">Simulación Potencia</h4>
+										<table class="tabla1 table-analisis-comparacion table table-bordered table-hover table-responsive">
+											<thead>
+												<tr>
+													<th>
+
+													</th>
+													@foreach($arreglo_potencia_simulada as $potencia)
+														<th class="text-center" style="vertical-align: middle;">
+															{{$potencia["periodo"]}}<br> (kW)
+														</th>
+													@endforeach
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td class="text-center" style="vertical-align: middle;">
+														NUEVA<br> POTENCIA
+													</td>
+													@foreach($arreglo_potencia_simulada as $index=>$potencia)
+														<td class="text-center" style="vertical-align: middle;">
+															{{round($potencia["potencia"], 0)}}
+														</td>
+													@endforeach
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							<!--	-->
+									<div class="col-md-2 col-md-offset-10" style="margin-top:15px;">
+										<button type="submit" class="btn btn-primary">REALIZAR SIMULACIÓN</button>
+									</div>
+							</form>
+						</div>
+						<div class="col-md-12">
+							<div class="row">
+								<div class="col-md-6 export-pdf" data-pdforder="2">
+									<br><br><br>
+									<table class="table-analisis-comparacion tabla1 table table-bordered table-hover table-responsive">
+										<thead>
+											<tr>
+												<th>
+
+												</th>
+												<th class="text-center" style="vertical-align: middle;">
+													Potencia Contratada
+												</th>
+												<th class="text-center">
+													Excesos Potencia
+												</th>
+												<th class="text-center" style="vertical-align: middle;">
+													Término Potencia
+												</th>
+											</tr>
+										</thead>
+										<tbody>
+											@foreach($data_analisis["dataFP"] as $idx=>$data)
+												<tr class="text-center" style="vertical-align: middle;">
+													<td>P{{$idx}}</td>
+													<td>{{number_format($data_analisis["dataFPC"][$idx],2,',','.')}} €</td>
+													<td>{{number_format($data_analisis["dataFPE"][$idx],2,',','.')}} €</td>
+													<td>{{number_format($data_analisis["dataFP"][$idx],2,',','.')}} €</td>
+												</tr>
+											@endforeach
+										</tbody>
+										<tfoot>
+											<th>
+												TOTAL
+											</th>
+											<th class="text-center" style="vertical-align: middle;">
+												{{number_format($data_analisis["totalFC"],0,',','.')}} €
+											</th>
+											<th class="text-center">
+												{{number_format($data_analisis["totalFPE"],0,',','.')}} €
+											</th>
+											<th class="text-center" style="vertical-align: middle;">
+												{{number_format($data_analisis["totalFP"],0,',','.')}} €
+											</th>
+									</tfoot>
+									</table>
+								</div>
+								<div class="col-md-6 export-pdf" data-pdforder="4">
+									<br><br><br>
+									<table class="table-analisis-comparacion tabla1 table table-bordered table-hover table-responsive">
+										<thead>
+											<tr>
+												<th>
+
+												</th>
+												<th class="text-center" style="vertical-align: middle;">
+													Potencia Contratada
+												</th>
+												<th class="text-center">
+													Excesos Potencia
+												</th>
+												<th class="text-center" style="vertical-align: middle;">
+													Término Potencia
+												</th>
+											</tr>
+										</thead>
+										<tbody>
+											@foreach($data_analisis["dataFP_simulated"] as $idx=>$data)
+												<tr class="text-center" style="vertical-align: middle;">
+													<td>P{{$idx}}</td>
+													<td>{{number_format($data_analisis["dataFPC_simulated"][$idx],2,',','.')}} €</td>
+													<td>{{number_format($data_analisis["dataFPE_simulated"][$idx],2,',','.')}} €</td>
+													<td>{{number_format($data_analisis["dataFP_simulated"][$idx],2,',','.')}} €</td>
+												</tr>
+											@endforeach
+										</tbody>
+										<tfoot>
+											<th>
+												TOTAL
+											</th>
+											<th class="text-center" style="vertical-align: middle;">
+												{{number_format($data_analisis["totalFC_simulated"],0,',','.')}} €
+											</th>
+											<th class="text-center">
+												{{number_format($data_analisis["totalFPE_simulated"],0,',','.')}} €
+											</th>
+											<th class="text-center" style="vertical-align: middle;">
+												{{number_format($data_analisis["totalFP_simulated"],0,',','.')}} €
+											</th>
+									</tfoot>
+									</table>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+								<div class="col-md-12">
+									<div class="row">
+										<div class="col-md-3">
+
+									</div>
+									<div class="col-md-6 export-pdf" data-pdforder="5">
+										<br><br>
+										<table class="table-analisis-comparacion tabla1 table table-bordered table-hover table-responsive">
+											<thead>
+												<tr>
+													<th>
+
+													</th>
+													<th class="text-center" style="vertical-align: middle;">
+														Potencia Contratada
+													</th>
+													<th class="text-center">
+														Excesos Potencia
+													</th>
+													<th class="text-center" style="vertical-align: middle;">
+														Término Potencia
+													</th>
+
+													<th class="text-center" style="vertical-align: middle;">
+														AHORRO
+													</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td class="text-center" style="vertical-align: middle;">SITUACIÓN ACTUAL</td>
+													<td class="text-center" style="vertical-align: middle;">{{number_format($data_analisis["totalFC"],0,',','.')}} €</td>
+													<td class="text-center" style="vertical-align: middle;">{{number_format($data_analisis["totalFPE"],0,',','.')}} €</td>
+													<td class="text-center" style="vertical-align: middle;">{{number_format($data_analisis["totalFP"],0,',','.')}} €</td>
+													<td class="text-center" style="vertical-align: middle;" rowspan="2">{{number_format($data_analisis["totalFPDifference"],0,',','.')}} €</td>
+												</tr>
+
+												<tr>
+													<td class="text-center" style="vertical-align: middle;">SIMULACIÓN</td>
+													<td class="text-center" style="vertical-align: middle;">{{number_format($data_analisis["totalFC_simulated"],0,',','.')}} €</td>
+													<td class="text-center" style="vertical-align: middle;">{{number_format($data_analisis["totalFPE_simulated"],0,',','.')}} €</td>
+													<td class="text-center" style="vertical-align: middle;">{{number_format($data_analisis["totalFP_simulated"],0,',','.')}} €</td>
+												</tr>
+											</tbody>
+
+										</table>
+									</div>
+									</div>
+								</div>
+						</div>
+						<!--
+						mirar a partir de aqui
+						<div class="col-md-6 export-pdf" data-pdforder="5">
+						-->
+						@if(count($data_analisis["months"]) > 1)
+								@foreach($data_analisis["months"] as $index=>$data_month)
+									<div class="col-md-12">
+										<div class="row">
+											<div class="col-md-12 export-pdf" style="margin-top:20px; margin-bottom:10px;  data-pdforder="{{10 + 4*($index)}}"">
+												<h3>{{$data_month["name"]}}</h3>
+											</div>
+											<div class="col-md-6 export-pdf" data-pdforder="{{10 + 4*($index) + 1}}">
+													<table class="table-analisis-comparacion tabla1 table table-bordered table-hover table-responsive">
+														<thead>
+															<tr>
+																<th>
+
+																</th>
+																<th class="text-center" style="vertical-align: middle;">
+																	Potencia Contratada {{10 + 4*($index) + 1}}
+																</th>
+																<th class="text-center">
+																	Excesos Potencia {{10 + 4*($index) + 2}}
+																</th>
+																<th class="text-center" style="vertical-align: middle;">
+																	Término Potencia {{10 + 4*($index) + 3}}
+																</th>
+															</tr>
+														</thead>
+														<tbody>
+															@foreach($data_month["dataFP"] as $idx=>$data)
+																<tr class="text-center" style="vertical-align: middle;">
+																	<td>P{{$idx}}</td>
+																	<td>{{number_format($data_month["dataFPC"][$idx],2,',','.')}} €</td>
+																	<td>{{number_format($data_month["dataFPE"][$idx],2,',','.')}} €</td>
+																	<td>{{number_format($data_month["dataFP"][$idx],2,',','.')}} €</td>
+																</tr>
+															@endforeach
+														</tbody>
+														<tfoot>
+															<th>
+																TOTAL
+															</th>
+															<th class="text-center" style="vertical-align: middle;">
+																{{number_format($data_month["totalFPC"],0,',','.')}} €
+															</th>
+															<th class="text-center">
+																{{number_format($data_month["totalFPE"],0,',','.')}} €
+															</th>
+															<th class="text-center" style="vertical-align: middle;">
+																{{number_format($data_month["totalFP"],0,',','.')}} €
+															</th>
+													</tfoot>
+													</table>
+												</div>
+												<div class="col-md-6 export-pdf" data-pdforder="{{10 + 4*($index) + 2}}">
+													<table class="table-analisis-comparacion tabla1 table table-bordered table-hover table-responsive">
+														<thead>
+															<tr>
+																<th>
+
+																</th>
+																<th class="text-center" style="vertical-align: middle;">
+																	Potencia Contratada
+																</th>
+																<th class="text-center">
+																	Excesos Potencia
+																</th>
+																<th class="text-center" style="vertical-align: middle;">
+																	Término Potencia
+																</th>
+															</tr>
+														</thead>
+														<tbody>
+															@foreach($data_month["dataFP_simulated"] as $idx=>$data)
+																<tr class="text-center" style="vertical-align: middle;">
+																	<td>P{{$idx}}</td>
+																	<td>{{number_format($data_month["dataFPC_simulated"][$idx],2,',','.')}} €</td>
+																	<td>{{number_format($data_month["dataFPE_simulated"][$idx],2,',','.')}} €</td>
+																	<td>{{number_format($data_month["dataFP_simulated"][$idx],2,',','.')}} €</td>
+																</tr>
+															@endforeach
+														</tbody>
+														<tfoot>
+															<th>
+																TOTAL
+															</th>
+															<th class="text-center" style="vertical-align: middle;">
+																{{number_format($data_month["totalFPC_simulated"],0,',','.')}} €
+															</th>
+															<th class="text-center">
+																{{number_format($data_month["totalFPE_simulated"],0,',','.')}} €
+															</th>
+															<th class="text-center" style="vertical-align: middle;">
+																{{number_format($data_month["totalFP_simulated"],0,',','.')}} €
+															</th>
+													</tfoot>
+													</table>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-12">
+											<div class="row">
+												<div class="col-md-3">
+
+											</div>
+											<div class="col-md-6 export-pdf" data-pdforder="{{10 + 4*($index) + 3}}">
+												<br><br>
+												<table class="table-analisis-comparacion tabla1 table table-bordered table-hover table-responsive">
+													<thead>
+														<tr>
+															<th>
+
+															</th>
+															<th class="text-center" style="vertical-align: middle;">
+																Potencia Contratada
+															</th>
+															<th class="text-center">
+																Excesos Potencia
+															</th>
+															<th class="text-center" style="vertical-align: middle;">
+																Término Potencia
+															</th>
+
+															<th class="text-center" style="vertical-align: middle;">
+																AHORRO
+															</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td class="text-center" style="vertical-align: middle;">SITUACIÓN ACTUAL</td>
+															<td class="text-center" style="vertical-align: middle;">{{number_format($data_month["totalFPC"],0,',','.')}} €</td>
+															<td class="text-center" style="vertical-align: middle;">{{number_format($data_month["totalFPE"],0,',','.')}} €</td>
+															<td class="text-center" style="vertical-align: middle;">{{number_format($data_month["totalFP"],0,',','.')}} €</td>
+															<td class="text-center" style="vertical-align: middle;" rowspan="2">{{number_format($data_month["totalFP_difference"],0,',','.')}} €</td>
+														</tr>
+
+														<tr>
+															<td class="text-center" style="vertical-align: middle;">SIMULACIÓN</td>
+															<td class="text-center" style="vertical-align: middle;">{{number_format($data_month["totalFPC_simulated"],0,',','.')}} €</td>
+															<td class="text-center" style="vertical-align: middle;">{{number_format($data_month["totalFPE_simulated"],0,',','.')}} €</td>
+															<td class="text-center" style="vertical-align: middle;">{{number_format($data_month["totalFP_simulated"],0,',','.')}} €</td>
+														</tr>
+													</tbody>
+
+												</table>
+											</div>
+											<div class="col-md-3">
+											</div>
+											</div>
+										</div>
+								@endforeach
+							@endif
+						</div>
+					@else
+						<div class="col-md-12">
+							<div class="row">
+								<form method="POST" action="{{route('simulacion.potencia.save')}}">
+									{{ csrf_field() }}
+									<input type="hidden" name="user" value="{{$user->id}}" />
+									<input type="hidden" name="count" value="{{$contador2->id}}" />
+									<div class="col-md-6 export-pdf" data-pdforder="1">
+										<h4 class="title-1 title-analisis">Situación Actual</h4>
+										<table class="table-analisis-comparacion tabla1 table table-bordered table-hover table-responsive">
+											<thead>
+												<tr>
+													<th>
+													</th>
+													@foreach($arreglo_potencia as $potencia)
+														<th class="text-center" style="vertical-align: middle;">
+															{{$potencia["periodo"]}}<br> (kW)
+														</th>
+													@endforeach
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td class="text-center" style="vertical-align: middle;">
+														POTENCIA<br> CONTRATADA
+													</td>
+													@foreach($arreglo_potencia as $potencia)
+														<td class="text-center" style="vertical-align: middle;">
+															 {{number_format($potencia["potencia"],0,',','.')}}
+														</td>
+													@endforeach
+												</tr>
+											<tr style="background:#7F7F7F;">
+												<td class="text-center" style="vertical-align: middle;font-weight:bold;color:white;">
+													POTENCIA<br> MAXIMA REGISTRADA
+												</td>
+												@foreach($data_analisis["dataFP_max"] as $potencia)
+													<td class="text-center" style="vertical-align: middle;font-weight:bold;color:white;">
+														 {{number_format($potencia,0,',','.')}}
+													</td>
+												@endforeach
+											</tr>
+											</tbody>
+										</table>
+									</div>
+									<!-- -->
+									<div style="display: none;" >
+									<div class="col-md-6 export-pdf" data-pdforder="3">
+										<h4 class="title-1 title-analisis">Simulación Potencia</h4>
+										<table class="tabla1 table-analisis-comparacion table table-bordered table-hover table-responsive">
+											<thead>
+												<tr>
+													<th>
+
+													</th>
+													@foreach($arreglo_potencia_simulada as $potencia)
+														<th class="text-center" style="vertical-align: middle;">
+															{{$potencia["periodo"]}}<br> (kW)
+														</th>
+													@endforeach
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td class="text-center" style="vertical-align: middle;">
+														NUEVA<br> POTENCIA
+													</td>
+													@foreach($arreglo_potencia_simulada as $index=>$potencia)
+														<td class="text-center" style="vertical-align: middle;">
+															{{round($potencia["potencia"], 0)}}
+														</td>
+													@endforeach
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							<!-- -->
+									<div class="col-md-6">
+										<h4 class="title-1 title-analisis">Simulación Potencia</h4>
+										<table class="tabla1 table-analisis-comparacion table table-bordered table-hover table-responsive">
+											<thead>
+												<tr>
+													<th>
+
+													</th>
+													@foreach($arreglo_potencia_simulada as $potencia)
+														<th class="text-center" style="vertical-align: middle;">
+															{{$potencia["periodo"]}}<br> (kW)
+														</th>
+													@endforeach
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td class="text-center" style="vertical-align: middle;">
+														NUEVA<br> POTENCIA
+													</td>
+													@foreach($arreglo_potencia_simulada as $index=>$potencia)
+														<td class="text-center" style="vertical-align: middle;">
+															<input type="number" class="form-control" name="simulatedv[]" value="{{round($potencia["potencia"], 0)}}" />
+														</td>
+													@endforeach
+												</tr>
+											</tbody>
+										</table>
+									</div>
+									<div class="col-md-2 col-md-offset-10" style="margin-top:15px;">
+										<button type="submit" class="btn btn-primary">REALIZAR SIMULACIÓN</button>
+									</div>
+							</form>
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+									<div class="row">
+										<div class="col-md-6 export-pdf" data-pdforder="2">
+											<br><br><br>
+											<table class="table-analisis-comparacion tabla1 table table-bordered table-hover table-responsive">
+												<thead>
+													<tr>
+														<th>
+
+														</th>
+														<th class="text-center" style="vertical-align: middle;">
+															Término Potencia
+														</th>
+													</tr>
+												</thead>
+												<tbody>
+													@foreach($data_analisis["dataFP"] as $idx=>$data)
+														<tr class="text-center" style="vertical-align: middle;">
+															<td>P{{$idx}}</td>
+															<td>{{number_format($data_analisis["dataFP"][$idx],2,',','.')}} €</td>
+														</tr>
+													@endforeach
+												</tbody>
+												<tfoot>
+											<th>
+												TOTAL
+											</th>
+											<th class="text-center" style="vertical-align: middle;">
+												{{number_format($data_analisis["totalFP"],0,',','.')}} €
+											</th>
+											</tfoot>
+											</table>
+										</div>
+										<div class="col-md-6 export-pdf" data-pdforder="4">
+											<br><br><br>
+											<table class="table-analisis-comparacion tabla1 table table-bordered table-hover table-responsive">
+												<thead>
+													<tr>
+														<th>
+
+														</th>
+														<th class="text-center" style="vertical-align: middle;">
+															Término Potencia
+														</th>
+													</tr>
+												</thead>
+												<tbody>
+													@foreach($data_analisis["dataFP_simulated"] as $idx=>$data)
+														<tr class="text-center" style="vertical-align: middle;">
+															<td>P{{$idx}}</td>
+															<td>{{number_format($data_analisis["dataFP_simulated"][$idx],2,',','.')}} €</td>
+														</tr>
+													@endforeach
+												</tbody>
+												<tfoot>
+											<th>
+												TOTAL
+											</th>
+											<th class="text-center" style="vertical-align: middle;">
+												{{number_format($data_analisis["totalFP_simulated"],0,',','.')}} €
+											</th>
+											</tfoot>
+											</table>
+										</div>
+									</div>
+								</div>
+						</div>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="row">
+										<div class="col-md-3">
+
+									</div>
+									<div class="col-md-6 export-pdf" data-pdforder="5">
+										<br><br>
+										<table class="table-analisis-comparacion tabla1 table table-bordered table-hover table-responsive">
+											<thead>
+												<tr>
+													<th>
+
+													</th>
+													<th class="text-center" style="vertical-align: middle;">
+														Término Potencia
+													</th>
+
+													<th class="text-center" style="vertical-align: middle;">
+														AHORRO
+													</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td class="text-center" style="vertical-align: middle;">SITUACIÓN ACTUAL</td>
+													<td class="text-center" style="vertical-align: middle;">{{number_format($data_analisis["totalFP"],0,',','.')}} €</td>
+													<td class="text-center" style="vertical-align: middle;" rowspan="2">{{number_format($data_analisis["totalFPDifference"],0,',','.')}} €</td>
+												</tr>
+
+												<tr>
+													<td class="text-center" style="vertical-align: middle;">SIMULACIÓN</td>
+													<td class="text-center" style="vertical-align: middle;">{{number_format($data_analisis["totalFP_simulated"],0,',','.')}} €</td>
+												</tr>
+											</tbody>
+
+										</table>
+									</div>
+									</div>
+								</div>
+						</div>
+							@if(count($data_analisis["months"]) > 1)
+								@foreach($data_analisis["months"] as $index=>$data_month)
+									<div class="col-md-12">
+										<div class="row">
+											<div class="col-md-12 export-pdf" style="margin-top:20px; margin-bottom:10px;" data-pdforder="{{10 + 4*($index)}}">
+												<h3>{{$data_month["name"]}}</h3>
+											</div>
+											<div class="col-md-6 export-pdf" data-pdforder="{{10 + 4*($index) + 1}}">
+													<table class="table-analisis-comparacion tabla1 table table-bordered table-hover table-responsive">
+														<thead>
+															<tr>
+																<th>
+
+																</th>
+																<th class="text-center" style="vertical-align: middle;">
+																	Término Potencia
+																</th>
+															</tr>
+														</thead>
+														<tbody>
+															@foreach($data_month["dataFP"] as $idx=>$data)
+																<tr class="text-center" style="vertical-align: middle;">
+																	<td>P{{$idx}}</td>
+																	<td>{{number_format($data_month["dataFP"][$idx],2,',','.')}} €</td>
+																</tr>
+															@endforeach
+														</tbody>
+														<tfoot>
+															<th>
+																TOTAL
+															</th>
+															<th class="text-center" style="vertical-align: middle;">
+																{{number_format($data_month["totalFP"],0,',','.')}} €
+															</th>
+													</tfoot>
+													</table>
+												</div>
+												<div class="col-md-6 export-pdf" data-pdforder="{{10 + 4*($index) + 2}}">
+													<table class="table-analisis-comparacion tabla1 table table-bordered table-hover table-responsive">
+														<thead>
+															<tr>
+																<th>
+
+																</th>
+																<th class="text-center" style="vertical-align: middle;">
+																	Término Potencia
+																</th>
+															</tr>
+														</thead>
+														<tbody>
+															@foreach($data_month["dataFP_simulated"] as $idx=>$data)
+																<tr class="text-center" style="vertical-align: middle;">
+																	<td>P{{$idx}}</td>
+																	<td>{{number_format($data_month["dataFP_simulated"][$idx],2,',','.')}} €</td>
+																</tr>
+															@endforeach
+														</tbody>
+														<tfoot>
+															<th>
+																TOTAL
+															</th>
+															<th class="text-center" style="vertical-align: middle;">
+																{{number_format($data_month["totalFP_simulated"],0,',','.')}} €
+															</th>
+													</tfoot>
+													</table>
+												</div>
+											</div>
+										</div>
+										<div class="col-md-12">
+											<div class="row">
+												<div class="col-md-3">
+
+											</div>
+											<div class="col-md-6 export-pdf" data-pdforder="{{10 + 4*($index) + 3}}">
+												<br><br>
+												<table class="table-analisis-comparacion tabla1 table table-bordered table-hover table-responsive">
+													<thead>
+														<tr>
+															<th>
+
+															</th>
+
+															<th class="text-center" style="vertical-align: middle;">
+																Término Potencia
+															</th>
+
+															<th class="text-center" style="vertical-align: middle;">
+																AHORRO
+															</th>
+														</tr>
+													</thead>
+													<tbody>
+														<tr>
+															<td class="text-center" style="vertical-align: middle;">SITUACIÓN ACTUAL</td>
+															<td class="text-center" style="vertical-align: middle;">{{number_format($data_month["totalFP"],0,',','.')}} €</td>
+															<td class="text-center" style="vertical-align: middle;" rowspan="2">{{number_format($data_month["totalFP_difference"],0,',','.')}} €</td>
+														</tr>
+
+														<tr>
+															<td class="text-center" style="vertical-align: middle;">SIMULACIÓN</td>
+															<td class="text-center" style="vertical-align: middle;">{{number_format($data_month["totalFP_simulated"],0,',','.')}} €</td>
+														</tr>
+													</tbody>
+
+												</table>
+											</div>
+											<div class="col-md-3">
+											</div>
+											</div>
+										</div>
+								@endforeach
+							@endif
+						</div>
+				@endif
+		</div>
+	</div>
+	<div class="clearfix"> </div>
+</div>
+<div class="content-bottom">
+		@include('Dashboard.modals.modal_intervalos')
+</div>
+<div class="copy">
+			<p> &copy; 2020 Submeter 4.0. Todos los derechos reservados</p>
+</div>
+</div>
+<div style="display:none;">
+	<form method="post" id="form-pdf" action="{{route('exportacion.pdf')}}">
+		{{ csrf_field() }}
+	</form>
+</div>
+@endsection
+@section('scripts')
+<script src="{{asset('js/jquery.metisMenu.js')}}"></script>
+	<script src="{{asset('js/jquery.slimscroll.min.js')}}"></script>
+	<script src="{{asset('js/custom.js')}}"></script>
+	<script src="{{asset('js/screenfull.js')}}"></script>
+	<script src="{{asset('js/jquery.nicescroll.js')}}"></script>
+<script src="{{asset('js/scripts.js')}}"></script>
+<script src="{{asset('js/bootstrap.min.js')}}"> </script>
+<script src="{{asset('js/canvas.js')}}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script type="text/javascript">
+<!--
+
+var intervalo = <?php echo json_encode($label_intervalo); ?>;
+var namesMonth = ["Enero", "Febrero", "Marzo", "Abril", "Mayo","Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+$(document).ready(function(){
+	createPlots();
+	$(".tab-plot-header").click(renderTabView);
+});
+
+function renderTabView(event){
+	var href = $(this).attr("href");
+	var cnt = $(href);
+	if(cnt.length > 0){
+		chart = cnt.data("chart");
+		if(chart != undefined) {
+			var rendered = cnt.data("chart_rendered");
+			if(!rendered) {
+				window.setTimeout(function(){chart.render();chart.render();}, 600);
+			}
+		}
+	}
+}
+
+function togglePlotsDataSeries(e) {
+	if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible ){
+		e.dataSeries.visible = false;
+	} else {
+		e.dataSeries.visible = true;
+	}
+	var cnt = $(e.chart.container).closest(".plot-tab");
+	if(cnt.length > 0) {
+		chart = cnt.data("chart");
+		if(chart != undefined) {
+			chart.render();
+		}
+	}
+}
+
+CanvasJS.addCultureInfo("es", {
+		decimalSeparator: ",",// Observe ToolTip Number Format
+		digitGroupSeparator: "."
+	});
+
+function createPlots(){
+	var plots = $(".plot-tab");
+
+	for(var iK = 0; iK < plots.length; iK++) {
+		var plot = $(plots[iK]);
+		var cntPlot = plot.find(".plot-container");
+		var labels = $.parseJSON(plot.find(".plot-labels").val());
+
+		var seriesValues = plot.find(".serie-value");
+		var seriesColors = plot.find(".serie-color");
+		var seriesName = plot.find(".serie-name");
+		var seriesAuxLabels = plot.find(".serie-aux_label");
+		var seriesInterval = plot.find(".serie-interval");
+
+//		var aux_interval = $(seriesInterval[0]).val();
+//		aux_interval = ($.isNumeric(aux_interval))? parseInt(aux_interval):"";
+
+		var labels2 = [];
+		var aux_interval = null;
+		var tick = 1;
+
+
+
+		if(intervalo == "Hoy" || intervalo == "Ayer"){
+			labels2 = labels;
+
+		}else if(intervalo == "Semana Actual" || intervalo == "Semana Anterior"){
+			aux_interval = 48;
+
+			for(var l = 0; l < labels.length; l++){
+				var h=0;
+				labels2[l] = null;
+				for(var p = 0; p < labels.length/96; p++){
+					h = 48+96*p;
+					if(l == h){
+						labels2[l] = labels[l].substr(0, labels[l].length - 5);;
+					}
+				}
+			}
+
+		}else if(intervalo == "Mes Actual" || intervalo == "Mes Anterior"){
+			aux_interval = 48;
+
+			for(var l = 0; l < labels.length; l++){
+				var h=0;
+				labels2[l] = null;
+				for(var p = 0; p < labels.length/96; p++){
+					h = 48+96*p;
+					if(l == h){
+						labels2[l] = labels[l].substr(0, labels[l].length - 5);;
+					}
+				}
+			}
+
+		}else if(intervalo == "Ultimo Trimestre" || intervalo == "Trimestre Actual"){
+			aux_interval = 15;
+			tick = 0;
+			for(var l = 0; l < labels.length; l++){
+				var h=0;
+				labels2[l] = null;
+				for(var p = 0; p < 3; p++){
+					h = parseInt(15+30*p);
+					if(l == h){
+						labels2[l] = new Date(labels[l]);
+						h = parseInt(labels2[l].getMonth());
+						labels2[l] = namesMonth[h];
+
+
+
+					}
+				}
+			}
+
+		}else if(intervalo == "Último Año" || intervalo == "Año Actual"){
+			aux_interval = 15;
+			tick = 0;
+			for(var l = 0; l < labels.length; l++){
+				var h=0;
+				labels2[l] = null;
+				for(var p = 0; p < 12; p++){
+					h = parseInt(15+30*p);
+					if(l == h){
+						labels2[l] = new Date(labels[l]);
+						h = parseInt(labels2[l].getMonth());
+						labels2[l] = namesMonth[h];
+
+
+					}
+				}
+			}
+
+		}else{
+			labels2 = labels;
+		}
+
+		var data = new Array();
+		var dataPlot = new Array();
+		for(var i = 0; i < seriesValues.length; i++) {
+			var serieVal = $(seriesValues[i]).val();
+			serieVal = $.parseJSON(serieVal);
+			var seriedata = new Array();
+			for(j = 0; j < serieVal.length; j++) {
+				var d = {
+						y : serieVal[j],
+						x : j,
+						z: labels[j],
+						label: labels2[j]
+				};
+				seriedata.push(d);
+			}
+			data[i] = seriedata;
+
+			if(i == 0) {
+				var tooltip = $(seriesAuxLabels[i]).val() +"{z} <br>{name}: {y}  kW"
+			}
+			else {
+				var tooltip = "{name}: {y}  kW";
+			}
+
+			var conf = {
+					type: "spline",
+					showInLegend: true,
+					visible: true,
+					bevelEnabled: true,
+					markerSize: 0,
+					name: $(seriesName[i]).val(),
+					legendColor: $(seriesColors[i]).val(),
+					lineColor: $(seriesColors[i]).val(),
+					color: $(seriesColors[i]).val(),
+					legendMarkerColor: $(seriesColors[i]).val(),
+					toolTipContent: tooltip,
+					dataPoints: data[i]
+			};
+			dataPlot.push(conf);
+		}
+
+		var chart = new CanvasJS.Chart(cntPlot.attr("id"), {
+			animationEnabled: false,
+			culture: "es",
+			theme: "light2",
+			title:{
+				text: plot.find(".plot-name").val(),
+				fontSize: 18,
+				margin: 50,
+				fontColor: "#004165"
+			},
+			exportEnabled: true,
+			axisX: {
+				tickThickness: tick,
+				valueFormatString: " ",
+				title: 'Máxima Potencia Demandada: '+plot.find(".plot-max").val()+' kW',
+				titleFontSize: 12,
+				titleFontColor: "#004165",
+				lineColor: "#004165",
+				labelFontColor: "#004165",
+				interval: aux_interval,
+				tickColor: "#004165"
+				},
+			axisY: {
+				suffix: " kW",
+				titleFontColor: "#004165",
+				lineColor: "#004165",
+				labelFontColor: "#004165",
+				tickColor: "#004165"
+			},
+			toolTip: {
+				shared: "true"
+			},
+			legend:{
+				cursor:"pointer",
+				itemclick : togglePlotsDataSeries
+			},
+			data: dataPlot
+		});
+		plot.data("chart", chart);
+		plot.data("chart_rendered", 0);
+		if(iK == 0){
+			chart.render();
+			plot.data("chart_rendered", 1);
+		}
+	}
+}
+
+var empresa = "{{$user->name}}";
+var email = "{{$user->email}}";
+var date_from = "{{$date_from}}";
+var date_to = "{{$date_to}}";
+var conta = "{{$contador_label}}";
+//console.log(dataURL);
+
+
+	$("#exportButton").click(function(){
+		@if($tipo_tarifa == 1)
+		var idxBreak = ",29,37,45,53,";
+		@else
+		var idxBreak = "";
+		@endif
+		var tokenInput = $("#form-pdf input[name='_token']")[0].outerHTML;
+		$("#form-pdf").html("");
+		$("#form-pdf").append(tokenInput);
+
+		var header = $(".pdf-header")[0].outerHTML;
+
+		var input = $("<input name='elements[]' type='hidden' value='"+btoa(unescape(encodeURIComponent(header)))+"' />");
+		var type = $("<input name='type_elements[]' value='2' type='hidden' />");
+		$("#form-pdf").append(input);
+		$("#form-pdf").append(type);
+
+		var objActive = $(".active.plot-tab .graph-1");
+		var width = parseInt(objActive.width());
+		var height = 350;
+
+		var cntChart = $(".plot-tab");
+		var handleCharts = [];
+		var dataCharts = [];
+
+		var idxElement = 1;
+
+		for(var i = 0; i < cntChart.length; i++){
+			var chart = $(cntChart[i]).data("chart");
+			chart.options.width = width;
+			chart.options.height = height;
+			chart.render();
+			handleCharts.push(chart);
+
+			var canvas = $(cntChart[i]).find("canvas")[0];
+			var data = canvas.toDataURL('image/jpeg', 1.0);
+			dataCharts.push(data);
+		}
+
+
+		for(var i = 0; i < dataCharts.length; i++) {
+			var input = $("<input name='elements[]' type='hidden' value='"+dataCharts[i]+"' />");
+			var type = $("<input name='type_elements[]' value='1' type='hidden' />");
+			$("#form-pdf").append(input);
+			$("#form-pdf").append(type);
+
+			if(idxBreak.indexOf("," + idxElement + ",") > 0) {
+				var input = $("<input name='elements[]' type='hidden' value='break' />");
+				var type = $("<input name='type_elements[]' value='3' type='hidden' />");
+				$("#form-pdf").append(input);
+				$("#form-pdf").append(type);
+			}
+			idxElement++;
+		}
+
+		var htmlData = $(".export-pdf");
+
+		var arrIdx = [];
+		for(var i = 0; i < htmlData.length; i++) {
+			var idxPdf = $(htmlData[i]).data("pdforder");
+			arrIdx.push([parseInt(idxPdf), i]);
+		}
+
+		arrIdx.sort(function(left, right) {
+				return left[0] < right[0] ? -1 : 1;
+		});
+
+		for(var i = 0; i < arrIdx.length; i++) {
+			var idx = arrIdx[i][1];
+			var input = $("<input name='elements[]' type='hidden' value='"+btoa(unescape(encodeURIComponent(htmlData[idx].outerHTML)))+"' />");
+			var type = $("<input name='type_elements[]' value='2' type='hidden' />");
+			$("#form-pdf").append(input);
+			$("#form-pdf").append(type);
+
+			var idxPDF = arrIdx[i][0];
+			if(idxBreak.indexOf("," + idxPDF + ",") >= 0) {
+				var input = $("<input name='elements[]' type='hidden' value='break' />");
+				var type = $("<input name='type_elements[]' value='3' type='hidden' />");
+				$("#form-pdf").append(input);
+				$("#form-pdf").append(type);
+			}
+		}
+
+		$("#form-pdf").submit();
+		return false;
+	});
+-->
+</script>
+<script>
+		function changeFunc()
+		{
+			var selectBox = document.getElementById("option_interval");
+			var selectedValue = selectBox.options[selectBox.selectedIndex].value;
+			if(selectedValue == 9)
+			{
+				$('#div_datatimes').show();
+				$('#datepicker').prop('required',true);
+				$('#datepicker2').prop('required',true);
+			}else{
+				$('#div_datatimes').hide();
+				$('#datepicker').val('');
+				$('#datepicker2').val('');
+				$('#datepicker').prop('required',false);
+				$('#datepicker2').prop('required',false);
+			}
+		}
+
+</script>
+<script>
+	$('#div_datatimes').hide();
+	$('#datepicker').val('');
+	$('#datepicker2').val('');
+	$('#datepicker').prop('required',false);
+	$('#datepicker2').prop('required',false);
+
+	$( function() {
+			$( "#datepicker" ).datepicker({
+				dateFormat:'yy-mm-dd',
+				changeMonth: true,
+					changeYear: true,
+			});
+		} );
+		$( function() {
+			$( "#datepicker2" ).datepicker({
+				dateFormat:'yy-mm-dd',
+				changeMonth: true,
+					changeYear: true,
+			});
+		} );
+</script>
+
+<script>
+			$(function () {
+					$('#supported').text('Supported/allowed: ' + !!screenfull.enabled);
+
+					if (!screenfull.enabled) {
+							return false;
+					}
+
+					$('#toggle').click(function () {
+							screenfull.toggle($('#container')[0]);
+					});
+			});
+	</script>
+
+	<script>
+			function anterior()
+			{
+				$('#before_navigation').val("-1");
+				$("#form_navegation").submit();
+			}
+			function siguiente()
+			{
+				$('#before_navigation').val("1");
+				$("#form_navegation").submit();
+			}
+			function volver()
+			{
+				$('#before_navigation').val("0");
+			}
+	</script>
+
+	<!-- <script src="{{asset('js/pie-chart.js')}}" type="text/javascript"></script> -->
+	<script src="{{asset('js/skycons.js')}}"></script>
+
+
+
+@endsection
