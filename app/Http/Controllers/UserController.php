@@ -6321,7 +6321,7 @@ class UserController extends Controller
 
 			if($tipo_count < 3)
 			{
-				return view('comparador_ofertas.comparador_ofertas',compact('user','titulo','cliente','id','ctrl','eje','eje2','consumo_activa','consumo_cap','consumo_induc','label_intervalo','p_demandada', 'p_contratada','precio_energia','precio_potencia','coste_actual_energia','coste_actual_potencia','cont','date_from','date_to','precio_potencia_propuesta','precio_energia_propuesta','total_actual_energia','total_propuesto_energia','total_diferencia_energia','total_actual_potencia','total_propuesto_potencia','total_diferencia_potencia','tipo_count','contador_label','domicilio','dir_image_count','tipo_tarifa','coste_propuesto_potencia','coste_propuesto_energia'));
+				return view('comparador_ofertas.comparador_ofertas',compact('user','titulo','id','ctrl','eje','eje2','consumo_activa','consumo_cap','consumo_induc','label_intervalo','p_demandada', 'p_contratada','precio_energia','precio_potencia','coste_actual_energia','coste_actual_potencia','cont','date_from','date_to','precio_potencia_propuesta','precio_energia_propuesta','total_actual_energia','total_propuesto_energia','total_diferencia_energia','total_actual_potencia','total_propuesto_potencia','total_diferencia_potencia','tipo_count','contador_label','domicilio','dir_image_count','tipo_tarifa','coste_propuesto_potencia','coste_propuesto_energia'));
 			}else{
 				$what = (\DB::select("SELECT label_current_count FROM current_count WHERE user_id = ".$id));
 				// if($what[0]->label_current_count == 'GN1')

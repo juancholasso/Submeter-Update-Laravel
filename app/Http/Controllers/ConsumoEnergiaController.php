@@ -189,7 +189,7 @@ class ConsumoEnergiaController extends Controller
                 $ctrl = 1;
             }
 
-            return view('consumo_energia.consumo_energia', compact('cliente', "contador2", "contador_label", 'ctrl', "data_calculos" ,"dataConsumo", "dataPlotting", "dataSubperiodo",
+            return view('consumo_energia.consumo_energia', compact("contador2", "contador_label", 'ctrl', "data_calculos" ,"dataConsumo", "dataPlotting", "dataSubperiodo",
                             "date_from", "date_to", "dir_image_count" ,"domicilio", 'id', "label_intervalo", 'titulo', "tipo_count", 'user'));
         }
         return \Redirect::to('https://submeter.es/');

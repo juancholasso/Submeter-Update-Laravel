@@ -863,7 +863,7 @@ class ResumenContadoresController extends Controller
 
 		if(($id != 0 && Auth::user()->id == $id) || Auth::user()->tipo == 1){
 			if($tipo_count < 3){
-				return view('Dashboard.dashboard',compact('user','ctrl','titulo','id','coste_activa', 'coste_reactiva', 'potencia_contratada', 'exceso_potencia', 'impuesto', 'equipo','hoy','date_from','date_to','cont','label_intervalo','tipo_count','array_contadores','diasDiferencia','domicilio','dir_image_count','tipo_tarifa','iee','contador_name','contador_cups','contador_direccion','contador_tarifa','contador_count','total_termino_potencia','total_potencia_contratada','total_excesos_potencia','IVA'))
+				return view('Dashboard.dashboard',compact('user','titulo','id','coste_activa', 'coste_reactiva', 'potencia_contratada', 'exceso_potencia', 'impuesto', 'equipo','hoy','date_from','date_to','cont','label_intervalo','tipo_count','diasDiferencia','domicilio','dir_image_count','tipo_tarifa','iee','contador_name','contador_cups','contador_direccion','contador_tarifa','contador_count','total_termino_potencia','total_potencia_contratada','total_excesos_potencia','IVA'))
 					->with('maps_url', $mapsURL)
 					->with('markers', json_encode( $markers));
 			} else {

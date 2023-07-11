@@ -53,12 +53,12 @@ class ResumenEnergiaController extends Controller
         $contador_label = $contador2->count_label;
         $current_count = $contador_label;
 
-        config(['database.connections.mysql2.host' => "85.214.55.112"]);
+        config(['database.connections.mysql2.host' => $contador2->host]);
         config(['database.connections.mysql2.port' => $contador2->port]);
         config(['database.connections.mysql2.database' => $contador2->database]);
         config(['database.connections.mysql2.username' => $contador2->username]);
         config(['database.connections.mysql2.password' => $contador2->password]);
-        env('MYSQL2_HOST',"85.214.55.112");
+        env('MYSQL2_HOST', $contador2->host);
         env('MYSQL2_DATABASE',$contador2->database);
         env('MYSQL2_USERNAME', $contador2->username);
         env('MYSQL2_PASSWORD',$contador2->password);
@@ -728,9 +728,9 @@ class ResumenEnergiaController extends Controller
 
             if($tipo_count < 3)
             {
-                return view('resumen_energia_potencia.resumen_energia_potencia',compact('user','titulo','cliente','id','ctrl','periodos2','EAct','p_contratada','periodos_coste','coste_potencia','array_total','Energia_Act','Energia_Reac_Cap','Energia_Reac_Induc', 'coste_termino_energia', 'consumo_diario_energia','eje','consumo_activa','consumo_capacitiva','consumo_inductiva','label_intervalo','date_from','date_to','tipo_count','subtipo_count','db_Venta_Energia','db_Venta_Costo_Energia','total_ventas','balance','generacion','interval','contador_label','domicilio','potencia_optima','dir_image_count','energia_activa_max','max_consumo_activa','balance2','tipo_tarifa','peri', 'dataSubperiodo', 'dataPlotting', 'contador2'));
+                return view('resumen_energia_potencia.resumen_energia_potencia',compact('user','titulo','id','ctrl','periodos2','EAct','p_contratada','periodos_coste','coste_potencia','Energia_Act','Energia_Reac_Cap','Energia_Reac_Induc', 'coste_termino_energia','eje','consumo_activa','consumo_capacitiva','consumo_inductiva','label_intervalo','date_from','date_to','tipo_count','subtipo_count','db_Venta_Energia','db_Venta_Costo_Energia','total_ventas','generacion','interval','contador_label','domicilio','potencia_optima','dir_image_count','energia_activa_max','max_consumo_activa','balance2','tipo_tarifa','peri', 'dataSubperiodo', 'dataPlotting', 'contador2'));
             }else{
-                return view('resumen_gn.resumen_gn',compact('user','titulo','cliente','id','ctrl','label_intervalo','date_from','date_to','tipo_count','interval','contador_label','direccion','coste_termino_fijo','coste_termino_variable','QD_contratado','PCS','tarifa','domicilio','dir_image_count','energia_activa_max','balance2','tipo_tarifa','peri', 'dataSubperiodo', 'dataPlotting', 'contador2'));
+                return view('resumen_gn.resumen_gn',compact('user','titulo','id','ctrl','label_intervalo','date_from','date_to','tipo_count','interval','contador_label','direccion','coste_termino_fijo','coste_termino_variable','QD_contratado','PCS','tarifa','domicilio','dir_image_count','energia_activa_max','balance2','tipo_tarifa','peri', 'dataSubperiodo', 'dataPlotting', 'contador2'));
             }
         }
         return \Redirect::to('https://submeter.es/');
