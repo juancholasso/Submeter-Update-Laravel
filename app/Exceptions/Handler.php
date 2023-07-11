@@ -1,6 +1,7 @@
 <?php namespace App\Exceptions;
 
 use Exception;
+use Throwable;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -41,11 +42,11 @@ class Handler extends ExceptionHandler
      *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
-     * @param Exception $exception
+     * @param Throwable $exception
      * @return RedirectResponse|void
      * @throws Exception
      */
-    public function report(Exception $exception)
+    public function report(Throwable $exception)
     {
         parent::report($exception);
     }
@@ -57,7 +58,7 @@ class Handler extends ExceptionHandler
      * @param Exception $exception
      * @return Factory|Application|JsonResponse|RedirectResponse|Response|View
      */
-    public function render($request, Exception $exception)
+    public function render($request, Throwable $exception)
     {
         /*//LeoW manejar de forma distitnta cuando son request ajax
         $ajax_response = $this->checkHttpAjax($request,$exception);
