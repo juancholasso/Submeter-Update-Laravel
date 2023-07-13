@@ -451,7 +451,7 @@ class AnalyzerController extends Controller
         */
         $chartjsnew = true;
         $titulo = "Analizadores Submetering";
-        return view("analizadores.groupanalyzers", compact("contador2", "analyzers_data", "chartjsnew" , "current_group_data", "date_from", "date_to", "data_groups", "group_analyzers", "groups_total_energy", "label_intervalo", "tipo_count", "titulo" ,"user", "new_data_group"));
+        return view("analizadores.groupanalyzers", compact("contador2", "analyzers_data", "chartjsnew" , "current_group_data", "date_from", "date_to", "data_groups", "groups_total_energy", "label_intervalo", "tipo_count", "titulo" ,"user", "new_data_group"));
     }
 
     private function evalDataStructure($new_data_subgroup_1, $new_data_group, $new_groups_total_energy){

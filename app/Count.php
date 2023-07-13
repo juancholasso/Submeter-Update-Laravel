@@ -8,6 +8,10 @@ class Count extends Model
 {
     protected $table= 'counts';
 
+    protected $fillable = [
+        'tipo'
+    ];
+
     public function _user(){
       return $this->belongsTo(User::class);
     }

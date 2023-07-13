@@ -992,7 +992,7 @@ class EmisionesCO2Controller extends Controller
             {
                 $direccion = $user->_perfil->direccion;
             }
-            return view('emisiones_co2.emisiones_co2',compact('user','titulo','cliente','id','ctrl','emisiones','label_intervalo','date_from','date_to','direccion','tipo_count','contador_label','domicilio','dir_image_count','eje','emisiones2','dates','tipo_tarifa','date_antes_from','date_antes_to','emisiones_antes','emisiones2_antes','eje_antes'));
+            return view('emisiones_co2.emisiones_co2',compact('user','titulo','id','ctrl','emisiones','label_intervalo','date_from','date_to','direccion','tipo_count','contador_label','domicilio','dir_image_count','eje','emisiones2','dates','tipo_tarifa','date_antes_from','emisiones_antes','emisiones2_antes','eje_antes'));
         }
         return \Redirect::to('https://submeter.es/');
                         // return view('emisiones_co2.emisiones_co2',compact('user','titulo','cliente','id','ctrl','emisiones','label_intervalo','date_from','date_to','direccion','tipo_count','contador_label','domicilio','dir_image_count','tipo_tarifa'));

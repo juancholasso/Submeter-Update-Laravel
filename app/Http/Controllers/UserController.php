@@ -10123,7 +10123,7 @@ class UserController extends Controller
 				$ctrl = 1;
 			}
 			$alertas_general = \DB::select("SELECT * FROM alertas_general WHERE user_id = ".$id." AND contador = '".$contador_label."'");
-			return view('informes_periodicos_alertas.informes_periodicos_alertas',compact('user', 'titulo', 'cliente', 'id', 'ctrl','label_intervalo','date_from', 'date_to','cont', 'informes_programados', 'informes_analizadores_programados', 'alertas_programadas', 'tipo_count', 'contador_label', 'dir_image_count', 'tipo_tarifa', 'porcentajes_alerta', 'search_types', 'alertas_general'));
+			return view('informes_periodicos_alertas.informes_periodicos_alertas',compact('user', 'titulo', 'id', 'ctrl','label_intervalo','date_from', 'date_to','cont', 'informes_programados', 'informes_analizadores_programados', 'alertas_programadas', 'tipo_count', 'contador_label', 'dir_image_count', 'tipo_tarifa', 'porcentajes_alerta', 'search_types', 'alertas_general'));
 		}
 		return \Redirect::to('https://submeter.es/');
 		// return view('informes_periodicos_alertas.informes_periodicos_alertas',compact('user','titulo','cliente','id','ctrl','label_intervalo','date_from', 'date_to','cont','informes_programados','alertas_programadas','tipo_count','contador_label','dir_image_count','tipo_tarifa'));
@@ -10753,7 +10753,7 @@ class UserController extends Controller
 				 else
 					 $ctrl = 1;
 
-					 return view('exportar_datos.exportar_datos',compact('user','titulo','cliente','id','ctrl','label_intervalo','date_from', 'date_to','cont','tipo_count','datos_contador','contador_label','total1','total2','total3','total4','total5','total6','domicilio','dir_image_count','aux_cont_datos','tipo_tarifa'));
+					 return view('exportar_datos.exportar_datos',compact('user','titulo','id','ctrl','label_intervalo','date_from', 'date_to','cont','tipo_count','datos_contador','contador_label','total1','total2','total3','total4','total5','total6','domicilio','dir_image_count','aux_cont_datos','tipo_tarifa'));
 		 }
 		return \Redirect::to('https://submeter.es/');
 		 // return view('exportar_datos.exportar_datos',compact('user','titulo','cliente','id','ctrl','label_intervalo','date_from', 'date_to','cont','tipo_count','datos_contador','contador_label','total1','total2','total3','total4','total5','total6','domicilio','dir_image_count','aux_cont_datos','tipo_tarifa'));
@@ -11175,8 +11175,10 @@ class UserController extends Controller
 		$tipo_count = strtolower(request()->input('tipo'));
 		if(empty($tipo_count))
 		{
-			$tipo_count = Count::where('user_id',3)->first()->tipo;
-
+			$count = Count::where('user_id',3)->first();
+			if($count){
+				$tipo_count = $count->tipo;
+			}
 		}
 
 		$usuario = User::with('_perfil')->find($user->id);

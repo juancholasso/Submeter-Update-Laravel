@@ -610,7 +610,7 @@ class SimulacionFacturasController extends Controller
             else
                 $ctrl = 1;
             if($tipo_count < 3)
-                return view('simulacion_facturas.simulacion_facturas',compact('user','titulo','id','precio_potencia','precio_energia','E_Activa', 'potencia_demandada', 'exceso_potencia', 'impuesto', 'equipo','hoy','date_from','date_to','cont','total1','total2','total3','IVA','sumatoria','label_intervalo','ctrl','tipo_count','coste_potencia_contratada','contador_label','diasDiferencia','domicilio','dir_image_count','total_','coste_reactiva','tipo_tarifa','coste_potencia_contratada_max', 'count_id', 'data_analisis', 'data_calculos', 'Pie1'));
+                return view('simulacion_facturas.simulacion_facturas',compact('user','titulo','id','precio_energia','E_Activa', 'potencia_demandada', 'exceso_potencia', 'impuesto', 'equipo','hoy','date_from','date_to','cont','total1','total2','total3','IVA','sumatoria','label_intervalo','ctrl','tipo_count','contador_label','diasDiferencia','domicilio','dir_image_count','total_','coste_reactiva','tipo_tarifa','coste_potencia_contratada_max', 'count_id', 'data_analisis', 'data_calculos', 'Pie1'));
             else
                 return view('Gas.simulacion_facturas',compact('user','titulo','id','hoy','date_from','date_to','cont','label_intervalo','ctrl','tipo_count','contador_label','consumo_GN_kWh','consumo_GN_kWh_diario','I_E_HC','equipo_medida','precio_variable','precio_fijo','descuento','descuento_variable','coste_precio_fijo','coste_descuento_fijo','coste_termino_fijo','diasDiferencia','domicilio','dir_image_count','tipo_tarifa','coste_potencia_contratada_max', 'count_id'));
         }
