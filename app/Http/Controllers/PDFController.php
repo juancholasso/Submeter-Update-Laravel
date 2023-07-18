@@ -46,44 +46,47 @@ class PDFController extends Controller
         $view = View::make("pdf.pdfcontent", compact("elements", "type_elements"));
         $contents = (string) $view;
         $contents = $view->render();
+
+        $pdf = PDF::loadView('pdf.pdfcontent', ['elements' => $elements, 'type_elements' => $type_elements]);
         
-        $filename = md5(microtime()).".html";
-        $html_name = sys_get_temp_dir()."/".$filename;
-        file_put_contents($html_name, $contents);
+        // $filename = md5(microtime()).".html";
+        // $html_name = sys_get_temp_dir()."/".$filename;
+        // file_put_contents($html_name, $contents);
         
         
-        $file_name_pdf = sys_get_temp_dir()."/".md5(microtime()).".pdf";
-        $process_command = "cat ".$html_name." | wkhtmltopdf - " . $file_name_pdf;       
-        $process = new Process($process_command);
-        $process->run();
+        // $file_name_pdf = sys_get_temp_dir()."/".md5(microtime()).".pdf";
+        // $process_command = "cat ".$html_name." | wkhtmltopdf - " . $file_name_pdf;       
+        // $process = new Process($process_command);
+        // $process->run();
         
-        if (!$process->isSuccessful()) {
-            try
-            {
-                $message_process = $process->getOutput();
-                $data = json_decode($message_process);
-                $msg_error = "Command: ". $process_command." \nResponse: ".$data;
-                Log::info($msg_error);
-                dd($msg_error);
-            }
-            catch(Exception $error)
-            {
+        // if (!$process->isSuccessful()) {
+        //     try
+        //     {
+        //         $message_process = $process->getOutput();
+        //         $data = json_decode($message_process);
+        //         $msg_error = "Command: ". $process_command." \nResponse: ".$data;
+        //         Log::info($msg_error);
+        //         dd($msg_error);
+        //     }
+        //     catch(Exception $error)
+        //     {
                 
-            }
+        //     }
             
-        }
+        // }
         
-        foreach($files_image as $image)
-        {
-            if(file_exists($image) && !is_dir($image))
-            {
-                unlink($image);
-            }
-        }
+        // foreach($files_image as $image)
+        // {
+        //     if(file_exists($image) && !is_dir($image))
+        //     {
+        //         unlink($image);
+        //     }
+        // }
         
         $nombreArchivoPdf = $request->titulo."_".$request->contador_label."_".$request->date_from."_".$request->date_to.".pdf";
-        unlink($html_name);
-        return response()->download($file_name_pdf, $nombreArchivoPdf)->deleteFileAfterSend(true);
+        // unlink($html_name);
+        return $pdf->stream($nombreArchivoPdf);
+        // return response()->download($file_name_pdf, $nombreArchivoPdf)->deleteFileAfterSend(true);
         
         //return view("pdf.pdfcontent", compact("elements", "type_elements"));
         /*$pdf = PDF::loadView("pdf.pdfcontent", compact("elements", "type_elements"));
