@@ -5411,23 +5411,25 @@ class UserController extends Controller
 				
 		if($tipo_tarifa == 1)
 		{
-			$optimizer_route = base_path()."/optimization.py";
-			$optimizer_route .= " -s ".$contador->host;
-			$optimizer_route .= " -p ".$contador->port;
-			$optimizer_route .= " -u ".$contador->username;
-			$optimizer_route .= " -k ".$contador->password;
-			$optimizer_route .= " -d ".$contador->database;
-			$optimizer_route .= " -b ".$request->input("date_from");
-			$optimizer_route .= " -e ".$request->input("date_to");
+			$optimizer_route[] = 'python2';
+			$optimizer_route[] = base_path().'/optimization.py';
+			$optimizer_route[] = '-s '.$contador->host;
+			$optimizer_route[] = '-p '.$contador->port;
+			$optimizer_route[] = '-u '.$contador->username;
+			$optimizer_route[] = '-k '.$contador->password;
+			$optimizer_route[] = '-d '.$contador->database;
+			$optimizer_route[] = '-b '.$request->input("date_from");
+			$optimizer_route[] = '-e '.$request->input("date_to");
 			$process = new Process($optimizer_route);
 			$process->run();
 			// die($process->getOutput());
-			// dd($optimizer_route, $process);
+			//dd($optimizer_route, $process, $process->getOutput());
 						
 			if (!$process->isSuccessful()) {
+				throw new ProcessFailedException($process);
 				try
 				{
-					die($process->getOutput());
+					dd($process->getOutput());
 					$message_process = $process->getOutput();
 					$data = json_decode($message_process);
 					$msg_error = "Command: ". $optimizer_route." \nResponse: ".$data->msg_error;
@@ -12115,8 +12117,9 @@ class UserController extends Controller
 		return $dateInfo;
 	}
 
-	function AnalizadoresGraficas($user_id = 0, $group_id = 0, $id = 0, Request $request)
+	function AnalizadoresGraficas(Request $request, $user_id = 0, $group_id = 0, $anlz_id = 0)
 	{
+		$id = $anlz_id;
         $session_user_id = Auth::user()->id;
 		$path_redirect = "/resumen_energia_potencia/".$session_user_id;
         if($user_id != $session_user_id){

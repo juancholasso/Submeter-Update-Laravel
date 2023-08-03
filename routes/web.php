@@ -190,10 +190,10 @@ Route::middleware(['auth'])->group(function(){
     Route::get('analizadores/{user_id}', 'UserController@Analizadores')->name('analizadores'); 
     // Route::get('analizadores_potencia_corrientes/{user_id}/{group_id}/{user_id}', ['as' => 'analizadores.graficas', 'uses' => 'UserController@AnalizadoresGraficas']);
     // Route::post('analizadores_informes_alertas/{user_id}/{user_id}', ['as' => 'analizadores.informes.alertas', 'uses' => 'UserController@AnalizadoresInformesAlertasProgramados']);
-    Route::get('analizadores_potencia_corrientes', 'UserController@AnalizadoresGraficas')->name('analizadores.graficas_valid1');
-    Route::get('analizadores_potencia_corrientes/{user_id}', 'UserController@AnalizadoresGraficas')->name('analizadores.graficas_valid2');
-    Route::get('analizadores_potencia_corrientes/{user_id}/{group_id}', 'UserController@AnalizadoresGraficas')->name('analizadores.graficas_valid3');
-    Route::get('analizadores_potencia_corrientes/{user_id}/{group_id}/{anlz_id}', 'UserController@AnalizadoresGraficas')->name('analizadores.graficas');
+    // Route::get('analizadores_potencia_corrientes', 'UserController@AnalizadoresGraficas')->name('analizadores.graficas_valid1');
+    // Route::get('analizadores_potencia_corrientes/{user_id}', 'UserController@AnalizadoresGraficas')->name('analizadores.graficas_valid2');
+    // Route::get('analizadores_potencia_corrientes/{user_id}/{group_id?}', 'UserController@AnalizadoresGraficas')->name('analizadores.graficas_valid3');
+    Route::get('analizadores_potencia_corrientes/{user_id}/{group_id?}/{anlz_id?}', 'UserController@AnalizadoresGraficas')->name('analizadores.graficas');
     Route::post('analizadores_informes_alertas/{user_id}/{anlz_id}', 'UserController@AnalizadoresInformesAlertasProgramados')->name('analizadores.informes.alertas');
   });
   

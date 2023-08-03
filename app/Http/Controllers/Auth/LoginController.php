@@ -109,7 +109,7 @@ class LoginController extends Controller
             if($this->lockoutFlag == 0){
                 Mail::to($request->email)->send(new LockOutNotification($request->ip(), $request->address, Carbon::now()->addMinutes($request->timezoneoffset * -1)));
                 User::where('email', $request->email)->update(['lock_status'=>'LOCKOUT']);
-                $this->SendSmsMessage($request->email, 'Plataforma Submeter\nSe detectaron accesos incorrectos desde la IP: '.$request->ip().' con la ubicación: '.$request->address);
+                $this->SendSmsMessage($request->email, str_replace("."," ",'Plataforma Submeter\nSe detectaron accesos incorrectos desde la IP: '.$request->ip().' con la ubicación: '.$request->address));
                 $this->AccessLogRecord($request, 'LOCKOUT');
             }
             else{ //Al ser la segunda vez que alcanza el máximo de intentos bloquea la cuenta (LOCKED) e informa al usuario
@@ -121,7 +121,7 @@ class LoginController extends Controller
                 Mail::to($request->email)->send(new LockedNotification($request->ip(), $request->address, $accesos));
                 User::where('email', $request->email)->update(['lock_status'=>'LOCKED']);
                 $this->AccessLogRecord($request, 'LOCKED');
-                $this->SendSmsMessage($request->email, 'Plataforma Submeter\nSu cuenta ha sido bloqueada\nIP: '.$request->ip().' con la ubicación: '.$request->address);
+                $this->SendSmsMessage($request->email, str_replace("."," ",'Plataforma Submeter\nSu cuenta ha sido bloqueada\nIP: '.$request->ip().' con la ubicación: '.$request->address));
                 return $this->sendLockedLoginResponse($request); //Se envía la notificación de que su cuenta ha sido bloqueada
             }
 
