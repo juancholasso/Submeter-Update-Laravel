@@ -16,6 +16,7 @@ use App\Mail\LockedNotification; //[Rogelio R -Workana] - Se agrega al controlad
 use Carbon\Carbon; //[Rogelio R -Workana] - Se agrega al controlador para el envío de correos cuando
 use Illuminate\Support\Facades\Mail; //[Rogelio R -Workana] - Se agrega al controlador para el soporte de envío de email desde el mismo
 use App\Http\Controllers\SmsSendMessage; //[Rogelio R -Workana] - Se agrega al controlador para el soporte de envío de SMS
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -286,8 +287,13 @@ class LoginController extends Controller
                                  ->count();
 
             if($accesos == 0){
-                Mail::to($request->email)->send(new distinctip_notification($request->ip(), $request->address, Carbon::now()->addMinutes($request->timezoneoffset * -1)));
-                $this->SendSmsMessage($request->email, 'Plataforma Submeter\nAcceso desde una nueva IP: '.$request->ip().' con la ubicación: '.$request->address);
+                try{
+                    Mail::to($request->email)->send(new distinctip_notification($request->ip(), $request->address, Carbon::now()->addMinutes($request->timezoneoffset * -1)));
+                    $this->SendSmsMessage($request->email, 'Plataforma Submeter\nAcceso desde una nueva IP: '.$request->ip().' con la ubicación: '.$request->address);
+                }
+                catch(\Exception $e){
+                    Log::error($e);
+                }
             }                                 
         }
         //Si la última entrada no tiene fecha de salida, se le pone la fecha actual

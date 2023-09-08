@@ -168,9 +168,9 @@
 <script type="text/javascript">
 <!--
 var urlAddGroupAnalyzer = '{{route("analyzergroup.save")}}';
-var urlEditGroupAnalyzer = '{{route("analyzergroup.update", ["id" => "_XXX_"])}}';
-var urlDeleteGroupAnalyzer = '{{route("analyzergroup.delete", ["id" => "_XXX_"])}}';
-var urlShowGroupAnalyzer = '{{route("analyzergroup.show", ["id" => "_XXX_"])}}';
+var urlEditGroupAnalyzer = '{{route("analyzergroup.update", ["analyzer_group_id" => "_XXX_"])}}';
+var urlDeleteGroupAnalyzer = '{{route("analyzergroup.delete", ["analyzer_group_id" => "_XXX_"])}}';
+var urlShowGroupAnalyzer = '{{route("analyzergroup.show", ["analyzer_group_id" => "_XXX_"])}}';
 var urlSelectGroupAnalyzer = '{{route("analyzergroup.list")}}';
 var urlSelectAnalyzers = '{{route("analyzer.list")}}';
 

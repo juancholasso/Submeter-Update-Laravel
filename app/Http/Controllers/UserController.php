@@ -5413,13 +5413,21 @@ class UserController extends Controller
 		{
 			$optimizer_route[] = 'python2';
 			$optimizer_route[] = base_path().'/optimization.py';
-			$optimizer_route[] = '-s '.$contador->host;
-			$optimizer_route[] = '-p '.$contador->port;
-			$optimizer_route[] = '-u '.$contador->username;
-			$optimizer_route[] = '-k '.$contador->password;
-			$optimizer_route[] = '-d '.$contador->database;
-			$optimizer_route[] = '-b '.$request->input("date_from");
-			$optimizer_route[] = '-e '.$request->input("date_to");
+			$optimizer_route[] = '-s';
+			$optimizer_route[] = $contador->host;
+			$optimizer_route[] = '-p';
+			$optimizer_route[] = $contador->port;
+			$optimizer_route[] = '-u';
+			$optimizer_route[] = $contador->username;
+			$optimizer_route[] = '-k';
+			$optimizer_route[] = $contador->password;
+			$optimizer_route[] = '-d';
+			$optimizer_route[] = $contador->database;
+			$optimizer_route[] = '-b';
+			$optimizer_route[] = $request->input("date_from");
+			$optimizer_route[] = '-e';
+			$optimizer_route[] = $request->input("date_to");
+
 			$process = new Process($optimizer_route);
 			$process->run();
 			// die($process->getOutput());
@@ -13422,7 +13430,7 @@ class UserController extends Controller
 				'user','titulo','id','ctrl','values_graficas','values_corriente','label_intervalo','date_from','date_to','direccion','tipo_count',
 				'contador_label','analizador','total_energias','datos_analizador_potencia',
 				'datos_analizador_corriente','total1','total2','total3','total4','total5','total6',
-				'color_etiqueta','contador_id','domicilio','dir_image_count','tipo_tarifa','values_corriente_',
+				'color_etiqueta','contador_id','domicilio','tipo_tarifa','values_corriente_',
 				'values_graficas_','eje','table_data', 'parsedTableData', 'contador2',
 				'analyzer_energy', 'analyzers_data', 'group_id','informes_programados','alertas_programados',
 				'td_Frecuencia','td_COSPHI','td_FDP','td_Intensidad','td_PotReac','td_PotAct_avg','td_PotAct_max','td_aux', 'td_PotAct_total', 'td_PotReac_total'

@@ -116,10 +116,10 @@
 <!--
 var tokenUser = "{{csrf_token()}}";
 var urlListUser = "{{ route('user.index') }}";
-var urlShowUser = "{{ route('user.show', ['id' => '?']) }}";
+var urlShowUser = "{{ route('user.show', ['user_id' => '?']) }}";
 var urlSaveUser = "{{ route('user.save') }}";
-var urlUpdateUser = "{{ route('user.update', ['id' => '?']) }}";
-var urlDeleteUser = "{{ route('user.delete', ['id' => '?']) }}";
+var urlUpdateUser = "{{ route('user.update', ['user_id' => '?']) }}";
+var urlDeleteUser = "{{ route('user.delete', ['user_id' => '?']) }}";
 
 var initializeUser = function() {
 	$("#btnUserList").show();

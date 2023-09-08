@@ -21,17 +21,17 @@ class LoginController extends Controller
     {
         $broker = Password::broker();
         
-        $backup = Mail::getSwiftMailer();
+        // $backup = Mail::getSwiftMailer();
         
         
-        $transport = new \Swift_SmtpTransport(env('MAIL_HOST'), 587, 'tls');
-        $transport->setUsername(env('MAIL_USERNAME'));
-        $transport->setPassword(env('MAIL_PASSWORD'));
+        // $transport = new \Swift_SmtpTransport(env('MAIL_HOST'), 587, 'tls');
+        // $transport->setUsername(env('MAIL_USERNAME'));
+        // $transport->setPassword(env('MAIL_PASSWORD'));
         
         
-        $smtp = new Swift_Mailer($transport);
+        // $smtp = new Swift_Mailer($transport);
         
-        Mail::setSwiftMailer($smtp);
+        // Mail::setSwiftMailer($smtp);
         
         $response = $broker->sendResetLink(
             $request->only('email')
@@ -41,7 +41,7 @@ class LoginController extends Controller
         
         if($response == Password::RESET_LINK_SENT)
         {
-            Mail::setSwiftMailer($backup);
+            // Mail::setSwiftMailer($backup);
             return back()->with('status', 'Se ha enviado más información del proceso de restauración al correo registrado');
         }
         else
@@ -67,7 +67,7 @@ class LoginController extends Controller
             
             Mail::to($mail_send)->send($mailObject);
             
-            Mail::setSwiftMailer($backup);
+            // Mail::setSwiftMailer($backup);
             return back()->withErrors(
                 ['email' => trans($response)]
                 );
@@ -100,17 +100,17 @@ class LoginController extends Controller
         
         if($response == Password::PASSWORD_RESET)
         {
-            $backup = Mail::getSwiftMailer();
+            // $backup = Mail::getSwiftMailer();
             
             
-            $transport = new \Swift_SmtpTransport(env('MAIL_HOST'), 587, 'tls');
-            $transport->setUsername(env('MAIL_USERNAME'));
-            $transport->setPassword(env('MAIL_PASSWORD'));
+            // $transport = new \Swift_SmtpTransport(env('MAIL_HOST'), 587, 'tls');
+            // $transport->setUsername(env('MAIL_USERNAME'));
+            // $transport->setPassword(env('MAIL_PASSWORD'));
             
             
-            $smtp = new Swift_Mailer($transport);
+            // $smtp = new Swift_Mailer($transport);
             
-            Mail::setSwiftMailer($smtp);
+            // Mail::setSwiftMailer($smtp);
             
             $user = User::where("email", $request->get("email"))->first();
             
@@ -126,7 +126,7 @@ class LoginController extends Controller
             
             Mail::to($user->email)->send($mailObject);
             
-            Mail::setSwiftMailer($backup);
+            // Mail::setSwiftMailer($backup);
             return redirect("/home")->with('status', trans($response));
         }
         else

@@ -176,10 +176,10 @@
 <!--
 var tokenAnalyzer = "{{csrf_token()}}";
 var urlListAnalyzer = "{{ route('analyzer.index') }}";
-var urlShowAnalyzer = "{{ route('analyzer.show', ['id' => '?']) }}";
+var urlShowAnalyzer = "{{ route('analyzer.show', ['analyzer_id' => '?']) }}";
 var urlSaveAnalyzer = "{{ route('analyzer.save') }}";
-var urlUpdateAnalyzer = "{{ route('analyzer.update', ['id' => '?']) }}";
-var urlDeleteAnalyzer = "{{ route('analyzer.delete', ['id' => '?']) }}";
+var urlUpdateAnalyzer = "{{ route('analyzer.update', ['analyzer_id' => '?']) }}";
+var urlDeleteAnalyzer = "{{ route('analyzer.delete', ['analyzer_id' => '?']) }}";
 var urlCombo = "{{ route('energymeter.indexcombo') }}";
 
 var initializeAnalyzer = function() {

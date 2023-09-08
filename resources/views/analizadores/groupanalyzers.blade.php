@@ -124,7 +124,7 @@
                             <div class="card card-anlz m-1">
                                 <div class="card__header" style='background-color:{{ $analyzer['color'] }};'>
                                     <a class="card__title"
-                                        href="{{ route('analizadores.graficas', ['user_id' => $user->id, 'group_id' => $current_group_data['group_id'], 'id' => $analyzer['id']]) }}">{{ $analyzer['nombre'] }}</a>
+                                        href="{{ route('analizadores.graficas', ['user_id' => $user->id, 'group_id' => $current_group_data['group_id'], 'anlz_id' => $analyzer['id']]) }}">{{ $analyzer['nombre'] }}</a>
                                 </div>
                                 <div class="card__body">
                                     <p>Energía Activa: {{ number_format($analyzer['energia_activa'], 0, ',', '.') }} kWh</p>

@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="content-main col-md-12 pl-2 pr-4 content-90 gray-bg">
-	<form name="form-enterprise" id="form-enterprise" method="POST" action="{{ route('enterprise.update', ['id' => $empresa->id]) }}">
+	<form name="form-enterprise" id="form-enterprise" method="POST" action="{{ route('enterprise.update', ['enterprise_id' => $empresa->id]) }}">
 		{{ csrf_field() }} 
 		<input type="hidden" name="_method" value="PATCH" />
 		<input type="hidden" name="id" value="{{ $empresa->id }}" />
@@ -111,7 +111,7 @@
 								<tr>
 									<td>{{$enterprise_analyzer->analyzer->id}}</td>
 									<td>{{$enterprise_analyzer->analyzer->label}}</td>
-									<td>{{$enterprise_analyzer->analyzer->meters()->first()->count_label}}</td>
+									<td>{{$enterprise_analyzer->analyzer->meters()->first()->count_label ?? 0}}</td>
 									<td></td>
 									<td></td>                      				
 								</tr>

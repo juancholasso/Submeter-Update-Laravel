@@ -535,10 +535,10 @@
 	<!--
 	var tokenEnergy = "{{csrf_token()}}";
 	var urlListEnergy = "{{ route('energymeter.index') }}";
-	var urlShowEnergy = "{{ route('energymeter.show', ['id' => '?']) }}";
+	var urlShowEnergy = "{{ route('energymeter.show', ['meter_id' => '?']) }}";
 	var urlSaveEnergy = "{{ route('energymeter.save') }}";
-	var urlUpdateEnergy = "{{ route('energymeter.update', ['id' => '?']) }}";
-	var urlDeleteEnergy = "{{ route('energymeter.delete', ['id' => '?']) }}";
+	var urlUpdateEnergy = "{{ route('energymeter.update', ['meter_id' => '?']) }}";
+	var urlDeleteEnergy = "{{ route('energymeter.delete', ['meter_id' => '?']) }}";
 	
 	var initializeEnergy = function() {
 		$("#btnEnergyList").show();

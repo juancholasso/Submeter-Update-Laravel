@@ -37,7 +37,7 @@
 									<td>{{$empresa->id}}</td>
 									<td>{{$empresa->name}}</td>
 									<td class="text-white" scope="col"><button class="btn btn-secondary show-users" data-id="{{$empresa->id}}"><span class="fa fa-eye"></span></button></td>
-									<td class="text-white" scope="col"><a class="btn btn-primary" href="{{ route('enterprise.edit', ['id' => $empresa->id]) }}"><span class="fa fa-pen"></span></a></td>                      
+									<td class="text-white" scope="col"><a class="btn btn-primary" href="{{ route('enterprise.edit', ['enterprise_id' => $empresa->id]) }}"><span class="fa fa-pen"></span></a></td>                      
                           			<td class="text-white" scope="col"><button class="btn btn-danger delete-register" data-id="{{$empresa->id}}"><span class="fa fa-times"></span></button></td>
 								</tr>
 							@endforeach
@@ -130,9 +130,9 @@
 <!--
 
     var token = "{!! csrf_token() !!}";
-    var urlShow = "{{ route('resumen.energia.potencia', ['id' => '_XXX_'] )}}"
-    var urlUsers = "{{route('enterprise.users', ['id' => '_XXX_'])}}";
-    var urlDelete = "{{route('enterprise.delete', ['id' => '_XXX_'])}}";
+    var urlShow = "{{ route('resumen.energia.potencia', ['user_id' => '_XXX_'] )}}"
+    var urlUsers = "{{route('enterprise.users', ['enterprise_id' => '_XXX_'])}}";
+    var urlDelete = "{{route('enterprise.delete', ['enterprise_id' => '_XXX_'])}}";
     
     function confirmDelete() {
     	var id = $(this).data("id");
