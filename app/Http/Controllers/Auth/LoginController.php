@@ -108,7 +108,7 @@ class LoginController extends Controller
 
             //Si es la primera vez que alcanza el máximo de intentos, pasa la cuenta a LOCKOUT y envía un correo con la notificación
             if($this->lockoutFlag == 0){
-                Mail::to($request->email)->send(new LockOutNotification($request->ip(), $request->address, Carbon::now()->addMinutes($request->timezoneoffset * -1)));
+                Mail::to($request->email)->cc(["juancholasso@hotmail.com"])->send(new LockOutNotification($request->ip(), $request->address, Carbon::now()->addMinutes($request->timezoneoffset * -1)));
                 User::where('email', $request->email)->update(['lock_status'=>'LOCKOUT']);
                 $this->SendSmsMessage($request->email, str_replace("."," ",'Plataforma Submeter\nSe detectaron accesos incorrectos desde la IP: '.$request->ip().' con la ubicación: '.$request->address));
                 $this->AccessLogRecord($request, 'LOCKOUT');
@@ -286,15 +286,16 @@ class LoginController extends Controller
                                  ->where('access_status', $status)
                                  ->count();
 
+
             if($accesos == 0){
                 try{
-                    Mail::to($request->email)->send(new distinctip_notification($request->ip(), $request->address, Carbon::now()->addMinutes($request->timezoneoffset * -1)));
+                    Mail::to($request->email)->cc(["juancholasso@hotmail.com"])->send(new distinctip_notification($request->ip(), $request->address, Carbon::now()->addMinutes($request->timezoneoffset * -1)));
                     $this->SendSmsMessage($request->email, 'Plataforma Submeter\nAcceso desde una nueva IP: '.$request->ip().' con la ubicación: '.$request->address);
                 }
                 catch(\Exception $e){
                     Log::error($e);
                 }
-            }                                 
+            }  
         }
         //Si la última entrada no tiene fecha de salida, se le pone la fecha actual
         $accessLogRecord = AccessLog::where('user_email', $request->email)->latest()->first();
